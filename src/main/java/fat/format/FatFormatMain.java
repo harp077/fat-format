@@ -54,10 +54,13 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static long sizeUsbBlockDevice;
     public static SuperFloppyFormatter SFF;
     public static String[] arrayFatTypes = {" FAT-12 ", " FAT-16 ", " FAT-32 "};
-    public static String[] arrayClusterSize = {"512", "1024", "2048", "4096", "8192", "16384", "32768"};
-    public static Map<String, FatType> fatMapFatTypes = new HashMap<String, FatType>();
-    public static Map<String, Long> fatMapFatMaxClusters = new HashMap<String, Long>();
+    public static String[] arrayClusterSize = {" 512", " 1024", " 2048", " 4096", " 8192", "16384", "32768"};
+    public static Map<String, FatType> mapFatTypes = new HashMap<String, FatType>();
+    public static Map<String, Long> mapFatMaxClusters = new HashMap<String, Long>();
     public static File tempFile;
+    public static FatType selectedFatType;
+    public static String selectedFatTypeString;
+    public static String selectedClusterSizeString;
     public static String currentLAF = "de.muntjak.tinylookandfeel.TinyLookAndFeel";
     //public static String currentLAF = "javax.swing.plaf.metal.MetalLookAndFeel";
     public static String zagolovok = " FAT format, v1.0.1, build  06-02-2021";
@@ -95,7 +98,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         this.comboStoresStringsList.setModel(new DefaultComboBoxModel<>(listStoresStrings.stream().toArray(String[]::new)));
         this.comboStoresStringsList.setEditable(false);
         this.selectedStore = comboStoresStringsList.getSelectedItem().toString().trim();
-        this.comboSelectFAT.setModel(new DefaultComboBoxModel<>(arrayFatTypes));
+        this.comboSetFAT.setModel(new DefaultComboBoxModel<>(arrayFatTypes));
         this.comboClusterSize.setModel(new DefaultComboBoxModel<>(arrayClusterSize));
         this.taLog.append("Selected Device: " + selectedStore + "\n");
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
@@ -134,11 +137,15 @@ public class FatFormatMain extends javax.swing.JFrame {
         this.taLog.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
         fatMapsInit();
         this.btnClearLog.setVisible(false);
-        System.out.println("maxClustersFat12 = "+fatMapFatMaxClusters.get("FAT-12")+"\n");
-        System.out.println("maxClustersFat16 = "+fatMapFatMaxClusters.get("FAT-16")+"\n");
-        System.out.println("maxClustersFat32 = "+fatMapFatMaxClusters.get("FAT-32")+"\n");
+        System.out.println("maxClustersFat12 = "+mapFatMaxClusters.get("FAT-12")+"\n");
+        System.out.println("maxClustersFat16 = "+mapFatMaxClusters.get("FAT-16")+"\n");
+        System.out.println("maxClustersFat32 = "+mapFatMaxClusters.get("FAT-32")+"\n");
         makeTempFile();
+        selectedFatTypeString = comboSetFAT.getSelectedItem().toString().trim();
+        selectedClusterSizeString = comboClusterSize.getSelectedItem().toString().trim();
+        tfMaxSizeForSelectedFatAndCluster.setText(""+mapFatMaxClusters.get(selectedFatTypeString)*Integer.parseInt(selectedClusterSizeString));        
     }
+    // END of FatFormatMain() constructor !!!!!
 
     public static void MyInstLF(String lf) {
         //UIManager.installLookAndFeel(lf,lf);  
@@ -147,12 +154,12 @@ public class FatFormatMain extends javax.swing.JFrame {
     }
     
     public static void fatMapsInit() {
-        fatMapFatTypes.put("FAT-12", FatType.FAT12);
-        fatMapFatTypes.put("FAT-16", FatType.FAT16);
-        fatMapFatTypes.put("FAT-32", FatType.FAT32);
-        fatMapFatMaxClusters.put("FAT-12", Math.round(Math.pow(2,12)));
-        fatMapFatMaxClusters.put("FAT-16", Math.round(Math.pow(2,16)));
-        fatMapFatMaxClusters.put("FAT-32", Math.round(Math.pow(2,32)));        
+        mapFatTypes.put("FAT-12", FatType.FAT12);
+        mapFatTypes.put("FAT-16", FatType.FAT16);
+        mapFatTypes.put("FAT-32", FatType.FAT32);
+        mapFatMaxClusters.put("FAT-12", Math.round(Math.pow(2,12)));
+        mapFatMaxClusters.put("FAT-16", Math.round(Math.pow(2,16)));
+        mapFatMaxClusters.put("FAT-32", Math.round(Math.pow(2,32)));        
     }  
     
     public static void makeTempFile() {
@@ -247,7 +254,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar2 = new javax.swing.JToolBar();
         jSeparator13 = new javax.swing.JToolBar.Separator();
         jLabel5 = new javax.swing.JLabel();
-        comboSelectFAT = new javax.swing.JComboBox<>();
+        comboSetFAT = new javax.swing.JComboBox<>();
         jSeparator6 = new javax.swing.JToolBar.Separator();
         jLabel8 = new javax.swing.JLabel();
         comboClusterSize = new javax.swing.JComboBox<>();
@@ -348,13 +355,13 @@ public class FatFormatMain extends javax.swing.JFrame {
         jLabel5.setText("Set FAT type: ");
         jToolBar2.add(jLabel5);
 
-        comboSelectFAT.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "fat" }));
-        comboSelectFAT.addActionListener(new java.awt.event.ActionListener() {
+        comboSetFAT.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "fat" }));
+        comboSetFAT.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboSelectFATActionPerformed(evt);
+                comboSetFATActionPerformed(evt);
             }
         });
-        jToolBar2.add(comboSelectFAT);
+        jToolBar2.add(comboSetFAT);
         jToolBar2.add(jSeparator6);
 
         jLabel8.setText("Set Cluster Size: ");
@@ -362,6 +369,11 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar2.add(jLabel8);
 
         comboClusterSize.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboClusterSize.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboClusterSizeActionPerformed(evt);
+            }
+        });
         jToolBar2.add(comboClusterSize);
         jToolBar2.add(jSeparator14);
 
@@ -550,9 +562,18 @@ public class FatFormatMain extends javax.swing.JFrame {
         //jToolBar3.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
     }//GEN-LAST:event_comboStoresStringsListActionPerformed
 
-    private void comboSelectFATActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboSelectFATActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_comboSelectFATActionPerformed
+    private void comboSetFATActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboSetFATActionPerformed
+        //selectedFatType = mapFatTypes.get(comboSetFAT.getSelectedItem().toString().trim());
+        selectedFatTypeString = comboSetFAT.getSelectedItem().toString().trim();
+        selectedClusterSizeString = comboClusterSize.getSelectedItem().toString().trim();
+        tfMaxSizeForSelectedFatAndCluster.setText(""+mapFatMaxClusters.get(selectedFatTypeString)*Integer.parseInt(selectedClusterSizeString));
+    }//GEN-LAST:event_comboSetFATActionPerformed
+
+    private void comboClusterSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboClusterSizeActionPerformed
+        selectedFatTypeString = comboSetFAT.getSelectedItem().toString().trim();
+        selectedClusterSizeString = comboClusterSize.getSelectedItem().toString().trim();
+        tfMaxSizeForSelectedFatAndCluster.setText(""+mapFatMaxClusters.get(selectedFatTypeString)*Integer.parseInt(selectedClusterSizeString));
+    }//GEN-LAST:event_comboClusterSizeActionPerformed
 
     public static void main(String args[]) {
         /*try {
@@ -591,7 +612,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     private javax.swing.JButton btnQuit;
     public static javax.swing.JToggleButton btnToggleRunStop;
     public static javax.swing.JComboBox<String> comboClusterSize;
-    public static javax.swing.JComboBox<String> comboSelectFAT;
+    public static javax.swing.JComboBox<String> comboSetFAT;
     public static javax.swing.JComboBox<String> comboStoresStringsList;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
