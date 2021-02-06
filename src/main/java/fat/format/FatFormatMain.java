@@ -54,6 +54,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static long sizeUsbBlockDevice;
     public static SuperFloppyFormatter SFF;
     public static String[] arrayFatTypes = {" FAT-12 ", " FAT-16 ", " FAT-32 "};
+    public static String[] arrayClusterSize = {"512", "1024", "2048", "4096", "8192", "16384", "32768"};
     public static Map<String, FatType> fatMap = new HashMap<String, FatType>();
     public static String currentLAF = "de.muntjak.tinylookandfeel.TinyLookAndFeel";
     //public static String currentLAF = "javax.swing.plaf.metal.MetalLookAndFeel";
@@ -93,6 +94,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         this.comboDevList.setEditable(false);
         this.selectedDF = comboDevList.getSelectedItem().toString().trim();
         this.comboSelectFAT.setModel(new DefaultComboBoxModel<>(arrayFatTypes));
+        this.comboClusterSize.setModel(new DefaultComboBoxModel<>(arrayClusterSize));
         this.taLog.append("Selected Device: " + selectedDF + "\n");
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
             if (store.toString().equals(selectedDF)) {
@@ -119,13 +121,13 @@ public class FatFormatMain extends javax.swing.JFrame {
         fatMap.put("FAT-12", FatType.FAT12);
         fatMap.put("FAT-16", FatType.FAT16);
         fatMap.put("FAT-32", FatType.FAT32);
-        /*usbBlockDevice = new RamDisk((int) sizeUsbBlockDevice);
+        usbBlockDevice = new RamDisk(65535, 8192);
         try {
             SFF = SuperFloppyFormatter.get(usbBlockDevice);
         } catch (IOException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
-        tfOldFatType.setText(SFF.getFatType().toString());*/
+        tfOldFatType.setText(SFF.getFatType().toString());
         this.tfName.setText(selectedUSB.name());
         this.tfType.setText(selectedUSB.type());
         this.taLog.setBackground(Color.DARK_GRAY);
@@ -205,6 +207,9 @@ public class FatFormatMain extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         comboSelectFAT = new javax.swing.JComboBox<>();
         jSeparator6 = new javax.swing.JToolBar.Separator();
+        jLabel8 = new javax.swing.JLabel();
+        comboClusterSize = new javax.swing.JComboBox<>();
+        jSeparator10 = new javax.swing.JToolBar.Separator();
         jLabel6 = new javax.swing.JLabel();
         tfVolumeLabel = new javax.swing.JTextField();
         jSeparator8 = new javax.swing.JToolBar.Separator();
@@ -311,6 +316,14 @@ public class FatFormatMain extends javax.swing.JFrame {
         comboSelectFAT.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "fat" }));
         jToolBar2.add(comboSelectFAT);
         jToolBar2.add(jSeparator6);
+
+        jLabel8.setText("Cluster Size: ");
+        jLabel8.setToolTipText("");
+        jToolBar2.add(jLabel8);
+
+        comboClusterSize.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jToolBar2.add(comboClusterSize);
+        jToolBar2.add(jSeparator10);
 
         jLabel6.setText("Set Volume Label: ");
         jToolBar2.add(jLabel6);
@@ -420,7 +433,7 @@ public class FatFormatMain extends javax.swing.JFrame {
 
     private void btnAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAboutActionPerformed
         //changeLF();
-        String msg = " FAT-format: "
+        String msg = " USB FAT-format: "
                 + "\n Free portable cross-platform"
                 + "\n Pure Java FAT-format graphical utility. "
                 + "\n Create by Roman Koldaev, "
@@ -514,6 +527,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static javax.swing.JButton btnClearLog;
     private javax.swing.JButton btnQuit;
     public static javax.swing.JToggleButton btnToggleRunStop;
+    public static javax.swing.JComboBox<String> comboClusterSize;
     public static javax.swing.JComboBox<String> comboDevList;
     public static javax.swing.JComboBox<String> comboSelectFAT;
     private javax.swing.JLabel jLabel1;
@@ -523,11 +537,13 @@ public class FatFormatMain extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator10;
     private javax.swing.JToolBar.Separator jSeparator11;
     private javax.swing.JToolBar.Separator jSeparator12;
     private javax.swing.JToolBar.Separator jSeparator13;
