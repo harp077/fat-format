@@ -6,11 +6,14 @@ import de.waldheinz.fs.fat.SuperFloppyFormatter;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
 import java.awt.event.ItemEvent;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +51,8 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static SuperFloppyFormatter SFF;
     public static String[] arrayFatTypes = {" FAT-12 ", " FAT-16 ", " FAT-32 "};
     public static String[] arrayClusterSize = {"512", "1024", "2048", "4096", "8192", "16384", "32768"};
-    public static Map<String, FatType> fatMap = new HashMap<String, FatType>();
-    public static Map<String, Long> fatMapMaxClusters = new HashMap<String, Long>();
+    public static Map<String, FatType> fatMapFatTypes = new HashMap<String, FatType>();
+    public static Map<String, Long> fatMapFatMaxClusters = new HashMap<String, Long>();
     /*public static long maxClustersFat12 = Math.round(Math.pow(2,12));
     public static long maxClustersFat16 = Math.round(Math.pow(2,16));
     public static long maxClustersFat32 = Math.round(Math.pow(2,32));*/
@@ -128,9 +131,34 @@ public class FatFormatMain extends javax.swing.JFrame {
         this.taLog.setForeground(Color.CYAN);
         fatMapsInit();
         this.btnClearLog.setVisible(false);
-        System.out.println("maxClustersFat12 = "+fatMapMaxClusters.get("FAT-12")+"\n");
-        System.out.println("maxClustersFat16 = "+fatMapMaxClusters.get("FAT-16")+"\n");
-        System.out.println("maxClustersFat32 = "+fatMapMaxClusters.get("FAT-32")+"\n");
+        System.out.println("maxClustersFat12 = "+fatMapFatMaxClusters.get("FAT-12")+"\n");
+        System.out.println("maxClustersFat16 = "+fatMapFatMaxClusters.get("FAT-16")+"\n");
+        System.out.println("maxClustersFat32 = "+fatMapFatMaxClusters.get("FAT-32")+"\n");
+        //System.out.println("TEMP = "+ File. +"\n");
+        System.out.println(System.getProperty("java.io.tmpdir"));
+        // Java NIO
+        try {
+            Path temp = Files.createTempFile("usb-fat-format-tmp-NIO_", ".tmp");
+            String absolutePath = temp.toString();
+            System.out.println("NIO Temp file : " + absolutePath);
+            String separator = FileSystems.getDefault().getSeparator();
+            String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(separator));
+            System.out.println("Temp file path : " + tempFilePath);            
+        } catch (IOException ex) {
+            Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // Java IO
+        try {
+            File temp = File.createTempFile("usb-fat-format-tmp-IO_", ".tmp");
+            System.out.println("IO Temp file : " + temp.getAbsolutePath());
+            String absolutePath = temp.getAbsolutePath();
+            String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(File.separator));
+
+            System.out.println("Temp file path : " + tempFilePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }        
+        
     }
 
     public static void MyInstLF(String lf) {
@@ -140,12 +168,12 @@ public class FatFormatMain extends javax.swing.JFrame {
     }
     
     public static void fatMapsInit() {
-        fatMap.put("FAT-12", FatType.FAT12);
-        fatMap.put("FAT-16", FatType.FAT16);
-        fatMap.put("FAT-32", FatType.FAT32);
-        fatMapMaxClusters.put("FAT-12", Math.round(Math.pow(2,12)));
-        fatMapMaxClusters.put("FAT-16", Math.round(Math.pow(2,16)));
-        fatMapMaxClusters.put("FAT-32", Math.round(Math.pow(2,32)));        
+        fatMapFatTypes.put("FAT-12", FatType.FAT12);
+        fatMapFatTypes.put("FAT-16", FatType.FAT16);
+        fatMapFatTypes.put("FAT-32", FatType.FAT32);
+        fatMapFatMaxClusters.put("FAT-12", Math.round(Math.pow(2,12)));
+        fatMapFatMaxClusters.put("FAT-16", Math.round(Math.pow(2,16)));
+        fatMapFatMaxClusters.put("FAT-32", Math.round(Math.pow(2,32)));        
     }    
 
     /*public void changeLF() {
