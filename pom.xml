@@ -35,6 +35,13 @@
         </dependency>
         
         <dependency>
+            <groupId>de.waldheinz</groupId>
+            <artifactId>fat32-lib-javadoc</artifactId>
+            <version>0.6.6</version>
+            <scope>provided</scope>
+        </dependency>        
+        
+        <dependency>
             <groupId>de.muntjak</groupId>
             <artifactId>tinylaf</artifactId>
             <version>1.4.0</version>
