@@ -1,0 +1,51 @@
+package fat.format;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
+import static fat.format.FatFormatMain.running;
+import static fat.format.FatFormatMain.taLog;
+
+public class Log_Thread extends Thread {
+
+    public static String logFile;
+
+    public Log_Thread(String adres) {
+        start();
+        this.logFile = adres;
+    }
+
+    @Override
+    public void run() {
+        //java.awt.EventQueue.invokeLater(new Runnable() {
+        //SwingUtilities.invokeLater(new Runnable() {
+            //public void run() {
+            synchronized (this) {
+                while (running == true) {
+                    try {
+                        //String textLine;
+                        FileReader freader = new FileReader(logFile);
+                        BufferedReader breader = new BufferedReader(freader);
+                        //while ((textLine = reader.readLine()) != null) {
+                        while ( breader.readLine() != null) {    
+                            //textLine = reader.readLine();
+                            taLog.read(breader, "taLogArea");
+                        }
+                    } catch (IOException ioe) {
+                        System.err.println(ioe);
+                    }
+                    try {
+                        Thread.sleep(999);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Log_Thread.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+    }
+        //});
+    //}
+
+}
