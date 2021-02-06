@@ -4,6 +4,7 @@ import de.waldheinz.fs.BlockDevice;
 import de.waldheinz.fs.fat.FatType;
 import de.waldheinz.fs.fat.SuperFloppyFormatter;
 import java.awt.Color;
+import java.awt.ComponentOrientation;
 import java.awt.event.ItemEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,6 +49,10 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static String[] arrayFatTypes = {" FAT-12 ", " FAT-16 ", " FAT-32 "};
     public static String[] arrayClusterSize = {"512", "1024", "2048", "4096", "8192", "16384", "32768"};
     public static Map<String, FatType> fatMap = new HashMap<String, FatType>();
+    public static Map<String, Long> fatMapMaxClusters = new HashMap<String, Long>();
+    /*public static long maxClustersFat12 = Math.round(Math.pow(2,12));
+    public static long maxClustersFat16 = Math.round(Math.pow(2,16));
+    public static long maxClustersFat32 = Math.round(Math.pow(2,32));*/
     public static String currentLAF = "de.muntjak.tinylookandfeel.TinyLookAndFeel";
     //public static String currentLAF = "javax.swing.plaf.metal.MetalLookAndFeel";
     public static String zagolovok = " FAT format, v1.0.1, build  06-02-2021";
@@ -121,8 +126,11 @@ public class FatFormatMain extends javax.swing.JFrame {
         this.tfType.setText(selectedUSB.type());
         this.taLog.setBackground(Color.DARK_GRAY);
         this.taLog.setForeground(Color.CYAN);
-        fatMapInit();
+        fatMapsInit();
         this.btnClearLog.setVisible(false);
+        System.out.println("maxClustersFat12 = "+fatMapMaxClusters.get("FAT-12")+"\n");
+        System.out.println("maxClustersFat16 = "+fatMapMaxClusters.get("FAT-16")+"\n");
+        System.out.println("maxClustersFat32 = "+fatMapMaxClusters.get("FAT-32")+"\n");
     }
 
     public static void MyInstLF(String lf) {
@@ -131,10 +139,13 @@ public class FatFormatMain extends javax.swing.JFrame {
         lookAndFeelsRealNames.add(lf);
     }
     
-    public static void fatMapInit() {
+    public static void fatMapsInit() {
         fatMap.put("FAT-12", FatType.FAT12);
         fatMap.put("FAT-16", FatType.FAT16);
         fatMap.put("FAT-32", FatType.FAT32);
+        fatMapMaxClusters.put("FAT-12", Math.round(Math.pow(2,12)));
+        fatMapMaxClusters.put("FAT-16", Math.round(Math.pow(2,16)));
+        fatMapMaxClusters.put("FAT-32", Math.round(Math.pow(2,32)));        
     }    
 
     /*public void changeLF() {
@@ -203,7 +214,10 @@ public class FatFormatMain extends javax.swing.JFrame {
         jSeparator6 = new javax.swing.JToolBar.Separator();
         jLabel8 = new javax.swing.JLabel();
         comboClusterSize = new javax.swing.JComboBox<>();
-        jSeparator10 = new javax.swing.JToolBar.Separator();
+        jSeparator14 = new javax.swing.JToolBar.Separator();
+        jLabel9 = new javax.swing.JLabel();
+        tfMaxSizeForSelectedFatAndCluster = new javax.swing.JTextField();
+        jSeparator15 = new javax.swing.JToolBar.Separator();
         jLabel6 = new javax.swing.JLabel();
         tfVolumeLabel = new javax.swing.JTextField();
         jSeparator4 = new javax.swing.JToolBar.Separator();
@@ -298,6 +312,11 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar2.add(jLabel5);
 
         comboSelectFAT.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "fat" }));
+        comboSelectFAT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboSelectFATActionPerformed(evt);
+            }
+        });
         jToolBar2.add(comboSelectFAT);
         jToolBar2.add(jSeparator6);
 
@@ -307,7 +326,14 @@ public class FatFormatMain extends javax.swing.JFrame {
 
         comboClusterSize.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jToolBar2.add(comboClusterSize);
-        jToolBar2.add(jSeparator10);
+        jToolBar2.add(jSeparator14);
+
+        jLabel9.setText("Max Size: ");
+        jToolBar2.add(jLabel9);
+
+        tfMaxSizeForSelectedFatAndCluster.setText("max");
+        jToolBar2.add(tfMaxSizeForSelectedFatAndCluster);
+        jToolBar2.add(jSeparator15);
 
         jLabel6.setText("Set Volume Label: ");
         jToolBar2.add(jLabel6);
@@ -333,6 +359,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar3.setBorder(javax.swing.BorderFactory.createTitledBorder("Status bar"));
         jToolBar3.setFloatable(false);
         jToolBar3.setRollover(true);
+        jToolBar3.setToolTipText("");
         jToolBar3.add(jSeparator7);
 
         btnAbout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/info-cyan-16.png"))); // NOI18N
@@ -485,7 +512,12 @@ public class FatFormatMain extends javax.swing.JFrame {
         }
         this.tfName.setText(selectedUSB.name());
         this.tfType.setText(selectedUSB.type());
+        //jToolBar3.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
     }//GEN-LAST:event_comboStoresStringsListActionPerformed
+
+    private void comboSelectFATActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboSelectFATActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboSelectFATActionPerformed
 
     public static void main(String args[]) {
         /*try {
@@ -534,15 +566,17 @@ public class FatFormatMain extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JToolBar.Separator jSeparator1;
-    private javax.swing.JToolBar.Separator jSeparator10;
     private javax.swing.JToolBar.Separator jSeparator11;
     private javax.swing.JToolBar.Separator jSeparator12;
     private javax.swing.JToolBar.Separator jSeparator13;
+    private javax.swing.JToolBar.Separator jSeparator14;
+    private javax.swing.JToolBar.Separator jSeparator15;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
@@ -555,6 +589,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
     public static javax.swing.JTextArea taLog;
+    public static javax.swing.JTextField tfMaxSizeForSelectedFatAndCluster;
     public static javax.swing.JTextField tfName;
     public static javax.swing.JTextField tfOldFatType;
     public static javax.swing.JTextField tfSize;
