@@ -143,7 +143,8 @@ public class FatFormatMain extends javax.swing.JFrame {
             System.out.println("NIO Temp file : " + absolutePath);
             String separator = FileSystems.getDefault().getSeparator();
             String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(separator));
-            System.out.println("Temp file path : " + tempFilePath);            
+            System.out.println("Temp file path : " + tempFilePath); 
+            temp.toFile().deleteOnExit();
         } catch (IOException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -153,8 +154,8 @@ public class FatFormatMain extends javax.swing.JFrame {
             System.out.println("IO Temp file : " + temp.getAbsolutePath());
             String absolutePath = temp.getAbsolutePath();
             String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(File.separator));
-
             System.out.println("Temp file path : " + tempFilePath);
+            temp.deleteOnExit();
         } catch (IOException e) {
             e.printStackTrace();
         }        
