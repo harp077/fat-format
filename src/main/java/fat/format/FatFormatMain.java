@@ -41,7 +41,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static int MAX_CONCURRENT_LOGINS = 11;
     public static int MAX_CONCURRENT_LOGINS_PER_IP = 11;
     public static FatFormatMain frame;
-    public static int FW = 800;
+    public static int FW = 900;
     public static int FH = 400;
     public static List<String> lookAndFeelsDisplay = new ArrayList<>();
     public static List<String> lookAndFeelsRealNames = new ArrayList<>();
@@ -63,7 +63,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static String selectedClusterSizeString;
     public static String currentLAF = "de.muntjak.tinylookandfeel.TinyLookAndFeel";
     //public static String currentLAF = "javax.swing.plaf.metal.MetalLookAndFeel";
-    public static String zagolovok = " FAT format, v1.0.1, build  06-02-2021";
+    public static String zagolovok = " Pure Java USB-flash FAT-format graphical utility, v1.0.12, build  06-02-2021";
 
     public FatFormatMain() {
         //BlockDevice dev = new RamDisk(16700000);
@@ -77,6 +77,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         ImageIcon icone = new ImageIcon(getClass().getResource("/img/top-frame-triangle-16.png"));
         this.setIconImage(icone.getImage());
         this.setTitle(zagolovok);
+        this.labelStatusBar.setText(zagolovok);
         try {
             if (System.getProperties().getProperty("os.name").toLowerCase().contains("linux")) {
                 for (FileStore store : FileSystems.getDefault().getFileStores()) {
@@ -117,9 +118,9 @@ public class FatFormatMain extends javax.swing.JFrame {
             }
         }        
         try {
-            this.tfSize.setText("" + selectedUSB.getTotalSpace());
+            this.tfSize.setText("" + selectedUSB.getTotalSpace()/(1024*1024) + " Mb");
             this.sizeUsbBlockDevice=selectedUSB.getTotalSpace();
-            taLog.append("Size Device: " + sizeUsbBlockDevice + "\n");            
+            taLog.append("Size Device: " + sizeUsbBlockDevice + " bytes\n");            
         } catch (IOException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -141,9 +142,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         System.out.println("maxClustersFat16 = "+mapFatMaxClusters.get("FAT-16")+"\n");
         System.out.println("maxClustersFat32 = "+mapFatMaxClusters.get("FAT-32")+"\n");
         makeTempFile();
-        selectedFatTypeString = comboSetFAT.getSelectedItem().toString().trim();
-        selectedClusterSizeString = comboClusterSize.getSelectedItem().toString().trim();
-        tfMaxSizeForSelectedFatAndCluster.setText(""+mapFatMaxClusters.get(selectedFatTypeString)*Integer.parseInt(selectedClusterSizeString));        
+        maxSizeForSelectedFatAndClusterCalculate();
     }
     // END of FatFormatMain() constructor !!!!!
 
@@ -161,6 +160,12 @@ public class FatFormatMain extends javax.swing.JFrame {
         mapFatMaxClusters.put("FAT-16", Math.round(Math.pow(2,16)));
         mapFatMaxClusters.put("FAT-32", Math.round(Math.pow(2,32)));        
     }  
+    
+    public static void maxSizeForSelectedFatAndClusterCalculate() {
+        selectedFatTypeString = comboSetFAT.getSelectedItem().toString().trim();
+        selectedClusterSizeString = comboClusterSize.getSelectedItem().toString().trim();
+        tfMaxSizeForSelectedFatAndCluster.setText(""+Math.round(mapFatMaxClusters.get(selectedFatTypeString)*Integer.parseInt(selectedClusterSizeString)/(1024*1024)) + " Mb");        
+    }
     
     public static void makeTempFile() {
         System.out.println(System.getProperty("java.io.tmpdir"));
@@ -269,6 +274,8 @@ public class FatFormatMain extends javax.swing.JFrame {
         jSeparator8 = new javax.swing.JToolBar.Separator();
         jToolBar3 = new javax.swing.JToolBar();
         jSeparator7 = new javax.swing.JToolBar.Separator();
+        labelStatusBar = new javax.swing.JLabel();
+        jSeparator10 = new javax.swing.JToolBar.Separator();
         btnAbout = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         btnQuit = new javax.swing.JButton();
@@ -347,7 +354,7 @@ public class FatFormatMain extends javax.swing.JFrame {
 
         jPanel3.setLayout(new java.awt.BorderLayout());
 
-        jToolBar2.setBorder(javax.swing.BorderFactory.createTitledBorder("Format Device"));
+        jToolBar2.setBorder(javax.swing.BorderFactory.createTitledBorder("Format Device parameters"));
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
         jToolBar2.add(jSeparator13);
@@ -408,6 +415,10 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar3.setRollover(true);
         jToolBar3.setToolTipText("");
         jToolBar3.add(jSeparator7);
+
+        labelStatusBar.setText("jLabel10");
+        jToolBar3.add(labelStatusBar);
+        jToolBar3.add(jSeparator10);
 
         btnAbout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/info-cyan-16.png"))); // NOI18N
         btnAbout.setText(" About");
@@ -503,8 +514,8 @@ public class FatFormatMain extends javax.swing.JFrame {
 
     private void btnAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAboutActionPerformed
         //changeLF();
-        String msg = " USB FAT-format: "
-                + "\n Free portable cross-platform"
+        String msg = " USB-flash FAT-format: "
+                + "\n Free portable cross-platform and"
                 + "\n Pure Java FAT-format graphical utility. "
                 + "\n Create by Roman Koldaev, "
                 + "\n Saratov city, Russia. "
@@ -513,7 +524,7 @@ public class FatFormatMain extends javax.swing.JFrame {
                 + "\n GitHub: https://github.com/harp077/ "
                 + "\n Need JRE-1.8.";
         ImageIcon icone = new ImageIcon(getClass().getResource("/img/logo/0-usb-128.png"));
-        JOptionPane.showMessageDialog(frame, msg, "About", JOptionPane.INFORMATION_MESSAGE, icone);
+        JOptionPane.showMessageDialog(frame, msg, "About FAT-format", JOptionPane.INFORMATION_MESSAGE, icone);
     }//GEN-LAST:event_btnAboutActionPerformed
 
     private void btnClearLogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearLogActionPerformed
@@ -551,9 +562,9 @@ public class FatFormatMain extends javax.swing.JFrame {
             }
         }
         try {
-            this.tfSize.setText("" + selectedUSB.getTotalSpace());
+            this.tfSize.setText("" + selectedUSB.getTotalSpace()/(1024*1024) + " Mb");
             this.sizeUsbBlockDevice=selectedUSB.getTotalSpace();
-            taLog.append("Size Device: " + sizeUsbBlockDevice + "\n");
+            taLog.append("Size Device: " + sizeUsbBlockDevice + " bytes\n");
         } catch (IOException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -563,16 +574,11 @@ public class FatFormatMain extends javax.swing.JFrame {
     }//GEN-LAST:event_comboStoresStringsListActionPerformed
 
     private void comboSetFATActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboSetFATActionPerformed
-        //selectedFatType = mapFatTypes.get(comboSetFAT.getSelectedItem().toString().trim());
-        selectedFatTypeString = comboSetFAT.getSelectedItem().toString().trim();
-        selectedClusterSizeString = comboClusterSize.getSelectedItem().toString().trim();
-        tfMaxSizeForSelectedFatAndCluster.setText(""+mapFatMaxClusters.get(selectedFatTypeString)*Integer.parseInt(selectedClusterSizeString));
+        maxSizeForSelectedFatAndClusterCalculate();
     }//GEN-LAST:event_comboSetFATActionPerformed
 
     private void comboClusterSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboClusterSizeActionPerformed
-        selectedFatTypeString = comboSetFAT.getSelectedItem().toString().trim();
-        selectedClusterSizeString = comboClusterSize.getSelectedItem().toString().trim();
-        tfMaxSizeForSelectedFatAndCluster.setText(""+mapFatMaxClusters.get(selectedFatTypeString)*Integer.parseInt(selectedClusterSizeString));
+        maxSizeForSelectedFatAndClusterCalculate();
     }//GEN-LAST:event_comboClusterSizeActionPerformed
 
     public static void main(String args[]) {
@@ -628,6 +634,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator10;
     private javax.swing.JToolBar.Separator jSeparator11;
     private javax.swing.JToolBar.Separator jSeparator12;
     private javax.swing.JToolBar.Separator jSeparator13;
@@ -644,6 +651,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
+    public static javax.swing.JLabel labelStatusBar;
     public static javax.swing.JTextArea taLog;
     public static javax.swing.JTextField tfMaxSizeForSelectedFatAndCluster;
     public static javax.swing.JTextField tfName;
