@@ -37,7 +37,6 @@ import org.apache.commons.io.FileSystem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-//import sun.management.FileSystem;
 
 public class FatFormatMain extends javax.swing.JFrame {
 
@@ -56,7 +55,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static FileStore selectedUSB;
     public static BlockDevice usbBlockDevice;
     public static long sizeUsbBlockDevice;
-    public static SuperFloppyFormatter SFF;
+    //public static SuperFloppyFormatter SFF;
     public static String[] arrayFatTypes = {" FAT-12 ", " FAT-16 ", " FAT-32 "};
     public static String[] arrayClusterSize = {" 512", " 1024", " 2048", " 4096", " 8192", "16384", "32768"};
     public static Map<String, FatType> mapFatTypes = new HashMap<String, FatType>();
@@ -74,7 +73,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         try {
             dev = FileDisk.create(makeTempFile(), 2147483647); //RamDisk(16700000);
             FatFileSystem fs = SuperFloppyFormatter.get(dev).setVolumeLabel("CF").setFatType(FatType.FAT12).format();
-            //fs.
+            fs.
         } catch (IOException | IllegalArgumentException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }*/
@@ -486,7 +485,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     }//GEN-LAST:event_btnQuitActionPerformed
 
     private void btnToggleRunStopItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_btnToggleRunStopItemStateChanged
-        if (!StringUtils.isNumeric(tfSize.getText()) || tfName.getText().isEmpty() || tfType.getText().isEmpty()) {
+        if (tfName.getText().isEmpty() || tfType.getText().isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Some wrong parameters !", "Error", JOptionPane.ERROR_MESSAGE);
             btnToggleRunStop.setSelected(false);
             return;
@@ -507,15 +506,25 @@ public class FatFormatMain extends javax.swing.JFrame {
             }
         }
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            //try {
-            //startServer(new String[0], tfPort.getText().trim(), tfUser.getText().trim(), tfPassw.getText().trim(), tfFolder.getText().trim(), comboListenIP.getSelectedItem().toString().trim());
             btnToggleRunStop.setIcon(iconOf);
-            btnToggleRunStop.setEnabled(false);//.setText("Stop server");
+            btnToggleRunStop.setEnabled(false);
             setBooleanBtnTf(false);
-            //} catch (FtpException | FtpServerConfigurationException fe) {
-            //JOptionPane.showMessageDialog(frame, "Some wrong !", "Error", JOptionPane.ERROR_MESSAGE);
-            btnToggleRunStop.setSelected(false);
-            //}
+            btnToggleRunStop.setSelected(false);            
+            try {
+                //startServer(new String[0], tfPort.getText().trim(), tfUser.getText().trim(), tfPassw.getText().trim(), tfFolder.getText().trim(), comboListenIP.getSelectedItem().toString().trim());
+                usbBlockDevice = FileDisk.create(new File(selectedUSB.name()), selectedUSB.getTotalSpace());
+                SuperFloppyFormatter.get(usbBlockDevice)
+                        .setVolumeLabel(tfVolumeLabel.getText())
+                        .setFatType(mapFatTypes.get(comboSetFAT.getSelectedItem().toString().trim()))
+                        .format();
+            } catch (IOException ex) {
+                Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
+                return;
+            }
+            btnToggleRunStop.setIcon(iconOn);
+            btnToggleRunStop.setEnabled(true);
+            setBooleanBtnTf(true);
+            btnToggleRunStop.setSelected(true);             
         }
     }//GEN-LAST:event_btnToggleRunStopItemStateChanged
 
