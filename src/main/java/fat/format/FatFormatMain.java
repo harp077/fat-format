@@ -57,9 +57,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static String[] arrayClusterSize = {"512", "1024", "2048", "4096", "8192", "16384", "32768"};
     public static Map<String, FatType> fatMapFatTypes = new HashMap<String, FatType>();
     public static Map<String, Long> fatMapFatMaxClusters = new HashMap<String, Long>();
-    /*public static long maxClustersFat12 = Math.round(Math.pow(2,12));
-    public static long maxClustersFat16 = Math.round(Math.pow(2,16));
-    public static long maxClustersFat32 = Math.round(Math.pow(2,32));*/
+    public static File tempFile;
     public static String currentLAF = "de.muntjak.tinylookandfeel.TinyLookAndFeel";
     //public static String currentLAF = "javax.swing.plaf.metal.MetalLookAndFeel";
     public static String zagolovok = " FAT format, v1.0.1, build  06-02-2021";
@@ -139,37 +137,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         System.out.println("maxClustersFat12 = "+fatMapFatMaxClusters.get("FAT-12")+"\n");
         System.out.println("maxClustersFat16 = "+fatMapFatMaxClusters.get("FAT-16")+"\n");
         System.out.println("maxClustersFat32 = "+fatMapFatMaxClusters.get("FAT-32")+"\n");
-        //System.out.println("TEMP = "+ File. +"\n");
-        System.out.println(System.getProperty("java.io.tmpdir"));
-        // Java NIO
-        try {
-            Path temp = Files.createTempFile("usb-fat-format-tmp-NIO_", ".tmp");
-            String absolutePath = temp.toString();
-            System.out.println("NIO Temp file : " + absolutePath);
-            String separator = FileSystems.getDefault().getSeparator();
-            String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(separator));
-            System.out.println("Temp file path : " + tempFilePath); 
-            temp.toFile().deleteOnExit();
-        } catch (IOException ex) {
-            Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        // Java IO
-        try {
-            File temp = File.createTempFile("usb-fat-format-tmp-IO_", ".tmp");
-            System.out.println("IO Temp file : " + temp.getAbsolutePath());
-            String absolutePath = temp.getAbsolutePath();
-            String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(File.separator));
-            System.out.println("Temp file path : " + tempFilePath);
-            temp.deleteOnExit();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }  
-        // commons-io
-        //IOUtils.
-        //FileSystemUtils.
-        //FileSystem.open().
-        //FileUtils.
-        System.out.println("commons-io temp= "+FileUtils.getTempDirectory());
+        makeTempFile();
     }
 
     public static void MyInstLF(String lf) {
@@ -185,6 +153,36 @@ public class FatFormatMain extends javax.swing.JFrame {
         fatMapFatMaxClusters.put("FAT-12", Math.round(Math.pow(2,12)));
         fatMapFatMaxClusters.put("FAT-16", Math.round(Math.pow(2,16)));
         fatMapFatMaxClusters.put("FAT-32", Math.round(Math.pow(2,32)));        
+    }  
+    
+    public static void makeTempFile() {
+        System.out.println(System.getProperty("java.io.tmpdir"));
+        // Java NIO
+        try {
+            Path temp = Files.createTempFile("fat-format-tmp-NIO_", ".tmp");
+            String absolutePath = temp.toString();
+            System.out.println("NIO Temp file : " + absolutePath);
+            String separator = FileSystems.getDefault().getSeparator();
+            String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(separator));
+            System.out.println("Temp file path : " + tempFilePath); 
+            temp.toFile().deleteOnExit();
+        } catch (IOException ex) {
+            Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // Java IO
+        /*try {
+            tempFile = File.createTempFile("fat-format-tmp-IO_", ".tmp");
+            String absolutePath = tempFile.getAbsolutePath();
+            System.out.println("IO Temp file : " + absolutePath);
+            String separator = File.separator;
+            String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(separator));
+            System.out.println("Temp file path : " + tempFilePath);
+            tempFile.deleteOnExit();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/  
+        // commons-io = IOUtils.*, FileSystemUtils.*, FileSystem.*, FileUtils.*
+        System.out.println("commons-io temp= "+FileUtils.getTempDirectory());
     }    
 
     /*public void changeLF() {
