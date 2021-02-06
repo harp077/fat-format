@@ -5,6 +5,7 @@ import de.waldheinz.fs.fat.FatType;
 import de.waldheinz.fs.fat.SuperFloppyFormatter;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
+import java.awt.Font;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,7 +30,10 @@ import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import sun.management.FileSystem;
 
 public class FatFormatMain extends javax.swing.JFrame {
 
@@ -127,8 +131,9 @@ public class FatFormatMain extends javax.swing.JFrame {
         tfOldFatType.setText(SFF.getFatType().toString());*/
         this.tfName.setText(selectedUSB.name());
         this.tfType.setText(selectedUSB.type());
-        this.taLog.setBackground(Color.DARK_GRAY);
+        this.taLog.setBackground(Color.BLACK);
         this.taLog.setForeground(Color.CYAN);
+        this.taLog.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
         fatMapsInit();
         this.btnClearLog.setVisible(false);
         System.out.println("maxClustersFat12 = "+fatMapFatMaxClusters.get("FAT-12")+"\n");
@@ -158,8 +163,13 @@ public class FatFormatMain extends javax.swing.JFrame {
             temp.deleteOnExit();
         } catch (IOException e) {
             e.printStackTrace();
-        }        
-        
+        }  
+        // commons-io
+        //IOUtils.
+        //FileSystemUtils.
+        //FileSystem.open().
+        //FileUtils.
+        System.out.println("commons-io temp= "+FileUtils.getTempDirectory());
     }
 
     public static void MyInstLF(String lf) {
@@ -337,7 +347,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar2.setRollover(true);
         jToolBar2.add(jSeparator13);
 
-        jLabel5.setText("Select FAT type: ");
+        jLabel5.setText("Set FAT type: ");
         jToolBar2.add(jLabel5);
 
         comboSelectFAT.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "fat" }));
@@ -349,7 +359,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar2.add(comboSelectFAT);
         jToolBar2.add(jSeparator6);
 
-        jLabel8.setText("Cluster Size: ");
+        jLabel8.setText("Set Cluster Size: ");
         jLabel8.setToolTipText("");
         jToolBar2.add(jLabel8);
 
@@ -357,10 +367,8 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar2.add(comboClusterSize);
         jToolBar2.add(jSeparator14);
 
-        jLabel9.setText("Max Size: ");
+        jLabel9.setText("Result Max Size: ");
         jToolBar2.add(jLabel9);
-
-        tfMaxSizeForSelectedFatAndCluster.setText("max");
         jToolBar2.add(tfMaxSizeForSelectedFatAndCluster);
         jToolBar2.add(jSeparator15);
 
