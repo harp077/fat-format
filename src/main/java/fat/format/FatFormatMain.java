@@ -38,22 +38,15 @@ import org.apache.commons.lang3.StringUtils;
 public class FatFormatMain extends javax.swing.JFrame {
 
     public static Boolean running = false;
-    //public static FtpServer server;
     public static int MAX_CONCURRENT_LOGINS = 11;
     public static int MAX_CONCURRENT_LOGINS_PER_IP = 11;
-    //public static MessageResource mrLog;
-    //public static java.util.logging.Logger jul;
-    //public static org.apache.log4j.Logger j4log;
     public static FatFormatMain frame;
     public static int FW = 800;
     public static int FH = 400;
-    //public static String ftpFolder;
     public static List<String> lookAndFeelsDisplay = new ArrayList<>();
     public static List<String> lookAndFeelsRealNames = new ArrayList<>();
     public static Map<String, String> argsHM = new HashMap<String, String>();
     public static Thread Log_Thread;
-    //private static InetAddressValidator ipv = InetAddressValidator.getInstance();
-    //public static List<String> listListenIP = new ArrayList<>();
     public static List<String> listDF = new ArrayList<>();
     public static String selectedDF;
     public static FileStore selectedUSB;
@@ -66,12 +59,6 @@ public class FatFormatMain extends javax.swing.JFrame {
     //public static String currentLAF = "javax.swing.plaf.metal.MetalLookAndFeel";
     public static String zagolovok = " FAT format, v1.0.1, build  06-02-2021";
 
-    /*static {
-        try (FileInputStream ins = new FileInputStream("cfg/jul.properties")) {
-            LogManager.getLogManager().readConfiguration(ins);
-            jul = java.util.logging.Logger.getLogger(FTPTestServer.class.getName());
-        } catch (Exception ignore) { ignore.printStackTrace(); }
-    } */
     public FatFormatMain() {
         //BlockDevice dev = new RamDisk(16700000);
         /*try {
@@ -433,16 +420,16 @@ public class FatFormatMain extends javax.swing.JFrame {
 
     private void btnAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAboutActionPerformed
         //changeLF();
-        String msg = " PJ-FTP-SERVER: "
+        String msg = " FAT-format: "
                 + "\n Free portable cross-platform"
-                + "\n Pure Java FTP server. "
+                + "\n Pure Java FAT-format graphical utility. "
                 + "\n Create by Roman Koldaev, "
                 + "\n Saratov city, Russia. "
                 + "\n mail: harp07@mail.ru "
                 + "\n SourceForge: https://sf.net/u/harp07/profile/ "
                 + "\n GitHub: https://github.com/harp077/ "
                 + "\n Need JRE-1.8.";
-        ImageIcon icone = new ImageIcon(getClass().getResource("/img/logo/ftp-green-logo-128.png"));
+        ImageIcon icone = new ImageIcon(getClass().getResource("/img/logo/0-usb-128.png"));
         JOptionPane.showMessageDialog(frame, msg, "About", JOptionPane.INFORMATION_MESSAGE, icone);
     }//GEN-LAST:event_btnAboutActionPerformed
 
