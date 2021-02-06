@@ -66,7 +66,7 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static String selectedClusterSizeString;
     public static String currentLAF = "de.muntjak.tinylookandfeel.TinyLookAndFeel";
     //public static String currentLAF = "javax.swing.plaf.metal.MetalLookAndFeel";
-    public static String zagolovok = " Pure Java USB-flash FAT-format graphical utility, v1.0.13, build  06-02-2021";
+    public static String zagolovok = " Pure Java USB-flash FAT-format graphical utility, v1.0.17, build  07-02-2021";
 
     public FatFormatMain() {
         /*BlockDevice dev;
@@ -509,8 +509,14 @@ public class FatFormatMain extends javax.swing.JFrame {
             btnToggleRunStop.setIcon(iconOf);
             btnToggleRunStop.setEnabled(false);
             setBooleanBtnTf(false);
-            btnToggleRunStop.setSelected(false);            
-            try {
+            btnToggleRunStop.setSelected(false); 
+            try {            
+                ImageBuilder.of(new File(System.getProperty("java.io.tmpdir"))).createDiskImage(makeTempFile());
+            } catch (IOException ex) {
+                Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
+                return;
+            }
+            /*try {
                 //startServer(new String[0], tfPort.getText().trim(), tfUser.getText().trim(), tfPassw.getText().trim(), tfFolder.getText().trim(), comboListenIP.getSelectedItem().toString().trim());
                 usbBlockDevice = FileDisk.create(new File(selectedUSB.name()), selectedUSB.getTotalSpace());
                 SuperFloppyFormatter.get(usbBlockDevice)
@@ -520,7 +526,7 @@ public class FatFormatMain extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
                 return;
-            }
+            }*/
             btnToggleRunStop.setIcon(iconOn);
             btnToggleRunStop.setEnabled(true);
             setBooleanBtnTf(true);
