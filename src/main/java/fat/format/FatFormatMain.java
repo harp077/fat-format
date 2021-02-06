@@ -1,23 +1,16 @@
 package fat.format;
 
 import de.waldheinz.fs.BlockDevice;
-import de.waldheinz.fs.fat.FatFileSystem;
 import de.waldheinz.fs.fat.FatType;
 import de.waldheinz.fs.fat.SuperFloppyFormatter;
-import de.waldheinz.fs.util.RamDisk;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +19,6 @@ import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
@@ -47,8 +39,8 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static List<String> lookAndFeelsRealNames = new ArrayList<>();
     public static Map<String, String> argsHM = new HashMap<String, String>();
     public static Thread Log_Thread;
-    public static List<String> listDF = new ArrayList<>();
-    public static String selectedDF;
+    public static List<String> listStoresStrings = new ArrayList<>();
+    public static String selectedStore;
     public static FileStore selectedUSB;
     public static BlockDevice usbBlockDevice;
     public static long sizeUsbBlockDevice;
@@ -77,37 +69,37 @@ public class FatFormatMain extends javax.swing.JFrame {
                 for (FileStore store : FileSystems.getDefault().getFileStores()) {
                     //if (store.toString().contains("/dev/") && store.getTotalSpace() > 0 && store.getTotalSpace() < 2147483647 && !store.toString().contains("tmp") && !store.toString().contains("shm")) {
                     if (store.toString().contains("/dev/") && store.getTotalSpace() > 0 && !store.toString().contains("tmp") && !store.toString().contains("shm")) {    
-                        listDF.add(store.toString().trim());
+                        listStoresStrings.add(store.toString().trim());
                     }
                 }
             } else {
                 for (FileStore store : FileSystems.getDefault().getFileStores()) {
                     //if (store.getTotalSpace() > 0 && store.getTotalSpace() < 2147483647 && !store.toString().contains("tmp") && !store.toString().contains("shm")) {
                     if (store.getTotalSpace() > 0 && !store.toString().contains("tmp") && !store.toString().contains("shm")) {    
-                        listDF.add(store.toString().trim());
+                        listStoresStrings.add(store.toString().trim());
                     }
                 }                
             }
         } catch (IOException io) {
         }
-        this.comboDevList.setModel(new DefaultComboBoxModel<>(listDF.stream().toArray(String[]::new)));
-        this.comboDevList.setEditable(false);
-        this.selectedDF = comboDevList.getSelectedItem().toString().trim();
+        this.comboStoresStringsList.setModel(new DefaultComboBoxModel<>(listStoresStrings.stream().toArray(String[]::new)));
+        this.comboStoresStringsList.setEditable(false);
+        this.selectedStore = comboStoresStringsList.getSelectedItem().toString().trim();
         this.comboSelectFAT.setModel(new DefaultComboBoxModel<>(arrayFatTypes));
         this.comboClusterSize.setModel(new DefaultComboBoxModel<>(arrayClusterSize));
-        this.taLog.append("Selected Device: " + selectedDF + "\n");
+        this.taLog.append("Selected Device: " + selectedStore + "\n");
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
-            if (store.toString().equals(selectedDF)) {
+            if (store.toString().equals(selectedStore)) {
                 selectedUSB = store;
                 if (selectedUSB.type().equals("ext3")||selectedUSB.type().equals("ext4")||selectedUSB.type().equals("swap")) {
-                    listDF.remove(selectedDF);
-                    comboDevList.setModel(new DefaultComboBoxModel<>(listDF.stream().toArray(String[]::new)));
+                    listStoresStrings.remove(selectedStore);
+                    comboStoresStringsList.setModel(new DefaultComboBoxModel<>(listStoresStrings.stream().toArray(String[]::new)));
                 }
             }
         }
-        this.selectedDF = comboDevList.getSelectedItem().toString().trim();
+        this.selectedStore = comboStoresStringsList.getSelectedItem().toString().trim();
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
-            if (store.toString().equals(selectedDF)) {
+            if (store.toString().equals(selectedStore)) {
                 selectedUSB = store;
             }
         }        
@@ -118,20 +110,18 @@ public class FatFormatMain extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
-        fatMap.put("FAT-12", FatType.FAT12);
-        fatMap.put("FAT-16", FatType.FAT16);
-        fatMap.put("FAT-32", FatType.FAT32);
-        usbBlockDevice = new RamDisk(65535, 8192);
+        /*usbBlockDevice = new RamDisk(65535, 8192);
         try {
             SFF = SuperFloppyFormatter.get(usbBlockDevice);
         } catch (IOException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
-        tfOldFatType.setText(SFF.getFatType().toString());
+        tfOldFatType.setText(SFF.getFatType().toString());*/
         this.tfName.setText(selectedUSB.name());
         this.tfType.setText(selectedUSB.type());
         this.taLog.setBackground(Color.DARK_GRAY);
         this.taLog.setForeground(Color.CYAN);
+        fatMapInit();
         this.btnClearLog.setVisible(false);
     }
 
@@ -140,6 +130,12 @@ public class FatFormatMain extends javax.swing.JFrame {
         lookAndFeelsDisplay.add(lf);
         lookAndFeelsRealNames.add(lf);
     }
+    
+    public static void fatMapInit() {
+        fatMap.put("FAT-12", FatType.FAT12);
+        fatMap.put("FAT-16", FatType.FAT16);
+        fatMap.put("FAT-32", FatType.FAT32);
+    }    
 
     /*public void changeLF() {
         String changeLook = (String) JOptionPane.showInputDialog(frame, "Choose Look and Feel Here:", "Select Look and Feel", JOptionPane.QUESTION_MESSAGE, new ImageIcon(getClass().getResource("/img/color_swatch.png")), lookAndFeelsDisplay.toArray(), null);
@@ -172,7 +168,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         tfName.setEditable(sset);
         tfType.setEditable(sset);
         tfSize.setEditable(sset);
-        comboDevList.setEnabled(sset);
+        comboStoresStringsList.setEnabled(sset);
     }
 
     @SuppressWarnings("unchecked")
@@ -183,7 +179,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar1 = new javax.swing.JToolBar();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         jLabel4 = new javax.swing.JLabel();
-        comboDevList = new javax.swing.JComboBox<>();
+        comboStoresStringsList = new javax.swing.JComboBox<>();
         jSeparator12 = new javax.swing.JToolBar.Separator();
         jLabel1 = new javax.swing.JLabel();
         tfSize = new javax.swing.JTextField();
@@ -202,8 +198,6 @@ public class FatFormatMain extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
         jSeparator13 = new javax.swing.JToolBar.Separator();
-        btnToggleRunStop = new javax.swing.JToggleButton();
-        jSeparator4 = new javax.swing.JToolBar.Separator();
         jLabel5 = new javax.swing.JLabel();
         comboSelectFAT = new javax.swing.JComboBox<>();
         jSeparator6 = new javax.swing.JToolBar.Separator();
@@ -212,6 +206,8 @@ public class FatFormatMain extends javax.swing.JFrame {
         jSeparator10 = new javax.swing.JToolBar.Separator();
         jLabel6 = new javax.swing.JLabel();
         tfVolumeLabel = new javax.swing.JTextField();
+        jSeparator4 = new javax.swing.JToolBar.Separator();
+        btnToggleRunStop = new javax.swing.JToggleButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
         jToolBar3 = new javax.swing.JToolBar();
         jSeparator7 = new javax.swing.JToolBar.Separator();
@@ -239,13 +235,13 @@ public class FatFormatMain extends javax.swing.JFrame {
         jLabel4.setText("Device List: ");
         jToolBar1.add(jLabel4);
 
-        comboDevList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "127.0.0.1" }));
-        comboDevList.addActionListener(new java.awt.event.ActionListener() {
+        comboStoresStringsList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "127.0.0.1" }));
+        comboStoresStringsList.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboDevListActionPerformed(evt);
+                comboStoresStringsListActionPerformed(evt);
             }
         });
-        jToolBar1.add(comboDevList);
+        jToolBar1.add(comboStoresStringsList);
         jToolBar1.add(jSeparator12);
 
         jLabel1.setText("Total Size: ");
@@ -298,18 +294,6 @@ public class FatFormatMain extends javax.swing.JFrame {
         jToolBar2.setRollover(true);
         jToolBar2.add(jSeparator13);
 
-        btnToggleRunStop.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/go-green-krug-16.png"))); // NOI18N
-        btnToggleRunStop.setText("Run format");
-        btnToggleRunStop.setFocusable(false);
-        btnToggleRunStop.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        btnToggleRunStop.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                btnToggleRunStopItemStateChanged(evt);
-            }
-        });
-        jToolBar2.add(btnToggleRunStop);
-        jToolBar2.add(jSeparator4);
-
         jLabel5.setText("Select FAT type: ");
         jToolBar2.add(jLabel5);
 
@@ -330,6 +314,18 @@ public class FatFormatMain extends javax.swing.JFrame {
 
         tfVolumeLabel.setText("usb");
         jToolBar2.add(tfVolumeLabel);
+        jToolBar2.add(jSeparator4);
+
+        btnToggleRunStop.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/go-green-krug-16.png"))); // NOI18N
+        btnToggleRunStop.setText("Run format");
+        btnToggleRunStop.setFocusable(false);
+        btnToggleRunStop.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnToggleRunStop.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                btnToggleRunStopItemStateChanged(evt);
+            }
+        });
+        jToolBar2.add(btnToggleRunStop);
         jToolBar2.add(jSeparator8);
 
         jPanel3.add(jToolBar2, java.awt.BorderLayout.CENTER);
@@ -472,11 +468,11 @@ public class FatFormatMain extends javax.swing.JFrame {
         }*/
     }//GEN-LAST:event_btnClearLogActionPerformed
 
-    private void comboDevListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDevListActionPerformed
-        this.selectedDF = comboDevList.getSelectedItem().toString().trim();
-        taLog.append("Selected Device: " + selectedDF + "\n");
+    private void comboStoresStringsListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboStoresStringsListActionPerformed
+        this.selectedStore = comboStoresStringsList.getSelectedItem().toString().trim();
+        taLog.append("Selected Device: " + selectedStore + "\n");
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
-            if (store.toString().equals(selectedDF)) {
+            if (store.toString().equals(selectedStore)) {
                 selectedUSB = store;
             }
         }
@@ -489,7 +485,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         }
         this.tfName.setText(selectedUSB.name());
         this.tfType.setText(selectedUSB.type());
-    }//GEN-LAST:event_comboDevListActionPerformed
+    }//GEN-LAST:event_comboStoresStringsListActionPerformed
 
     public static void main(String args[]) {
         /*try {
@@ -528,8 +524,8 @@ public class FatFormatMain extends javax.swing.JFrame {
     private javax.swing.JButton btnQuit;
     public static javax.swing.JToggleButton btnToggleRunStop;
     public static javax.swing.JComboBox<String> comboClusterSize;
-    public static javax.swing.JComboBox<String> comboDevList;
     public static javax.swing.JComboBox<String> comboSelectFAT;
+    public static javax.swing.JComboBox<String> comboStoresStringsList;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
