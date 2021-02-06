@@ -1,8 +1,11 @@
 package fat.format;
 
 import de.waldheinz.fs.BlockDevice;
+import de.waldheinz.fs.fat.FatFileSystem;
 import de.waldheinz.fs.fat.FatType;
 import de.waldheinz.fs.fat.SuperFloppyFormatter;
+import de.waldheinz.fs.util.FileDisk;
+import de.waldheinz.fs.util.RamDisk;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
 import java.awt.Font;
@@ -30,10 +33,11 @@ import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.apache.commons.io.FileSystem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import sun.management.FileSystem;
+//import sun.management.FileSystem;
 
 public class FatFormatMain extends javax.swing.JFrame {
 
@@ -63,14 +67,15 @@ public class FatFormatMain extends javax.swing.JFrame {
     public static String selectedClusterSizeString;
     public static String currentLAF = "de.muntjak.tinylookandfeel.TinyLookAndFeel";
     //public static String currentLAF = "javax.swing.plaf.metal.MetalLookAndFeel";
-    public static String zagolovok = " Pure Java USB-flash FAT-format graphical utility, v1.0.12, build  06-02-2021";
+    public static String zagolovok = " Pure Java USB-flash FAT-format graphical utility, v1.0.13, build  06-02-2021";
 
     public FatFormatMain() {
-        //BlockDevice dev = new RamDisk(16700000);
-        /*try {
+        /*BlockDevice dev;
+        try {
+            dev = FileDisk.create(makeTempFile(), 2147483647); //RamDisk(16700000);
             FatFileSystem fs = SuperFloppyFormatter.get(dev).setVolumeLabel("CF").setFatType(FatType.FAT12).format();
             //fs.
-        } catch (IOException ex) {
+        } catch (IOException | IllegalArgumentException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }*/
         initComponents();
@@ -101,7 +106,6 @@ public class FatFormatMain extends javax.swing.JFrame {
         this.selectedStore = comboStoresStringsList.getSelectedItem().toString().trim();
         this.comboSetFAT.setModel(new DefaultComboBoxModel<>(arrayFatTypes));
         this.comboClusterSize.setModel(new DefaultComboBoxModel<>(arrayClusterSize));
-        this.taLog.append("Selected Device: " + selectedStore + "\n");
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
             if (store.toString().equals(selectedStore)) {
                 selectedUSB = store;
@@ -112,6 +116,7 @@ public class FatFormatMain extends javax.swing.JFrame {
             }
         }
         this.selectedStore = comboStoresStringsList.getSelectedItem().toString().trim();
+        this.taLog.append("Selected Device: " + selectedStore + "\n");
         for (FileStore store : FileSystems.getDefault().getFileStores()) {
             if (store.toString().equals(selectedStore)) {
                 selectedUSB = store;
@@ -167,7 +172,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         tfMaxSizeForSelectedFatAndCluster.setText(""+Math.round(mapFatMaxClusters.get(selectedFatTypeString)*Integer.parseInt(selectedClusterSizeString)/(1024*1024)) + " Mb");        
     }
     
-    public static void makeTempFile() {
+    public static File makeTempFile() {
         System.out.println(System.getProperty("java.io.tmpdir"));
         // Java NIO
         try {
@@ -178,6 +183,7 @@ public class FatFormatMain extends javax.swing.JFrame {
             String tempFilePath = absolutePath.substring(0, absolutePath.lastIndexOf(separator));
             System.out.println("Temp file path : " + tempFilePath); 
             temp.toFile().deleteOnExit();
+            return temp.toFile();
         } catch (IOException ex) {
             Logger.getLogger(FatFormatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -195,6 +201,7 @@ public class FatFormatMain extends javax.swing.JFrame {
         }*/  
         // commons-io = IOUtils.*, FileSystemUtils.*, FileSystem.*, FileUtils.*
         System.out.println("commons-io temp= "+FileUtils.getTempDirectory());
+        return null;
     }    
 
     /*public void changeLF() {
